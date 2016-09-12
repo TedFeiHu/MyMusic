@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/local_music_sorted_by_time_action"
+        android:icon="@mipmap/local_music_sorted_by_time_icon"
+        android:title="@string/local_music_sorted_by_time_string"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/local_music_sorted_by_name_action"
+        android:icon="@mipmap/local_music_sorted_by_name_icon"
+        android:title="@string/local_music_sorted_by_name_string"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/local_music_upgrade_song_quality__action"
+        android:icon="@mipmap/local_music_upgrade_song_quality_icon"
+        android:title="@string/local_music_upgrade_song_quality_string"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/local_music_scan_action"
+        android:icon="@mipmap/local_music_scan_icon"
+        android:title="@string/local_music_scan_icon"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/local_cloud_music_action"
+        android:icon="@mipmap/local_cloud_music_icon"
+        android:title="@string/local_cloud_music_string"
+        app:showAsAction="never" />
+</menu>
