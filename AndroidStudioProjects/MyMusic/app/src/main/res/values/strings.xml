@@ -5,4 +5,5 @@
     <string name="local_music_upgrade_song_quality_string">升级音乐品质</string>
     <string name="local_music_scan_icon">扫描音乐</string>
     <string name="local_cloud_music_string">云端恢复</string>
+    <string name="music_content_text">未找到本地歌曲</string>
 </resources>

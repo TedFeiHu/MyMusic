@@ -7,7 +7,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 
+import com.ted.mymusic.com.ted.mymusic.adapter.MusicListViewAdapter;
 import com.ted.mymusic.com.ted.mymusic.utils.L;
 
 import java.lang.reflect.Method;
@@ -22,6 +24,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initView();
+
+    }
+
+    void initView() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         toolbar.setTitle("无限音乐");
         toolbar.setSubtitle("wuxianedu Pro Music");
@@ -29,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(new MyMenuClickListener());
 
+
+        ListView listView = (ListView) findViewById(R.id.music_list_view);
+        listView.setAdapter(new MusicListViewAdapter(this));
     }
 
     @Override
