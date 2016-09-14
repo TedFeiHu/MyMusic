@@ -7,6 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.ted.mymusic.R;
+import com.ted.mymusic.com.ted.mymusic.bean.Music;
+import com.ted.mymusic.com.ted.mymusic.utils.MediaUtils;
 
 /**
  * 音乐播放列表
@@ -18,15 +20,22 @@ public class MusicListViewAdapter extends BaseAdapter {
 
     public MusicListViewAdapter(Context context) {
         this.context = context;
+
     }
 
     @Override
     public int getCount() {
-        return 20;
+        if (MediaUtils.songList.size()!=0){
+            return MediaUtils.songList.size();
+        }
+        return 0;
     }
 
     @Override
     public Object getItem(int position) {
+        if (MediaUtils.songList.size()!=0){
+            return MediaUtils.songList.get(position);
+        }
         return null;
     }
 
@@ -39,21 +48,25 @@ public class MusicListViewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         Holder holder;
         if (convertView == null) {
-            convertView = View.inflate(context, R.layout.music_list_item, null);
+            convertView = View.inflate(context, R.layout.item_music_lv, null);
             holder = new Holder();
-            holder.name = (TextView) convertView.findViewById(R.id.music_list_item_name);
-            holder.singer = (TextView) convertView.findViewById(R.id.music_list_item_singer);
-            holder.time = (TextView) convertView.findViewById(R.id.music_list_item_time);
+            holder.title = (TextView) convertView.findViewById(R.id.music_list_item_title);
+            holder.artist = (TextView) convertView.findViewById(R.id.music_list_item_artist);
+            holder.duration = (TextView) convertView.findViewById(R.id.music_list_item_duration);
             convertView.setTag(holder);
         }else {
             holder = (Holder) convertView.getTag();
         }
+        Music music = MediaUtils.songList.get(position);
 
+        holder.title.setText(music.title);
+        holder.artist.setText(music.artist);
 
+        holder.duration.setText(music.duration+"");
         return convertView;
     }
 
     class Holder {
-        TextView name, singer, time;
+        TextView title, artist, duration;
     }
 }
