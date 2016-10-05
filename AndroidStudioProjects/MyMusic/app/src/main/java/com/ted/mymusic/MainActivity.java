@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView mBtmArt;
     private View mInclude;
     private TextView mBtmTitle;
-    private TextView mBtmAtrist;
+    private TextView mBtmArtist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mInclude = findViewById(R.id.include_layout);
         mBtmArt = (ImageView) findViewById(R.id.bottom_art);
         mBtmTitle = (TextView) findViewById(R.id.bottom_title);
-        mBtmAtrist = (TextView) findViewById(R.id.bottom_artist);
+        mBtmArtist = (TextView) findViewById(R.id.bottom_artist);
 
     }
 
@@ -151,12 +151,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        View viewWithTag = mListView.findViewWithTag(MediaUtils.CUR_MUsic);
+        viewWithTag.setVisibility(View.GONE);
+
         MediaUtils.CUR_MUsic = position;
         Music music = MediaUtils.songList.get(position);
         mInclude.setVisibility(View.VISIBLE);
         mBtmArt.setImageBitmap(music.albumArt);
         mBtmTitle.setText(music.title);
-        mBtmAtrist.setText(music.artist);
+        mBtmArtist.setText(music.artist);
+
+        viewWithTag = mListView.findViewWithTag(MediaUtils.CUR_MUsic);
+        viewWithTag.setVisibility(View.VISIBLE);
     }
 
     class MyMenuClickListener implements Toolbar.OnMenuItemClickListener {

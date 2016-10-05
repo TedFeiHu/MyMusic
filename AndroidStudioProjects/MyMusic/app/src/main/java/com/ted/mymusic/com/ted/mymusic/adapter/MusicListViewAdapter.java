@@ -1,6 +1,7 @@
 package com.ted.mymusic.com.ted.mymusic.adapter;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -53,6 +54,8 @@ public class MusicListViewAdapter extends BaseAdapter {
             holder.title = (TextView) convertView.findViewById(R.id.music_list_item_title);
             holder.artist = (TextView) convertView.findViewById(R.id.music_list_item_artist);
             holder.duration = (TextView) convertView.findViewById(R.id.music_list_item_duration);
+
+            holder.view = convertView.findViewById(R.id.view);
             convertView.setTag(holder);
         }else {
             holder = (Holder) convertView.getTag();
@@ -63,10 +66,14 @@ public class MusicListViewAdapter extends BaseAdapter {
         holder.artist.setText(music.artist);
 
         holder.duration.setText(music.duration+"");
+
+        holder.view.setTag(position);
+
         return convertView;
     }
 
     class Holder {
         TextView title, artist, duration;
+        View view;
     }
 }
