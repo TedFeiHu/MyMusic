@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 
 import com.ted.mymusic.com.ted.mymusic.bean.Music;
@@ -17,7 +18,8 @@ import java.util.List;
  * Created by TED on 2016/9/14.
  */
 public class MediaUtils {
-    public static int CUR_MUsic = 0;
+    public static int CUR_Music = -1;
+    public static int CUR_STATUS = Constants.Music.MUSIC_STOP;
 
     public static List<Music> songList = new ArrayList<>();
 
@@ -157,13 +159,13 @@ public class MediaUtils {
                 }
                 p = pix[yw + vmin[x]];
 //原版是0xFF0000 0x00FF00 0x0000FF
-//                sir[0] = (p & 0x660000) >> 16;
-//                sir[1] = (p & 0x006600) >> 8;
-//                sir[2] = (p & 0x000066);
+                sir[0] = (p & 0xFF0000) >> 16;
+                sir[1] = (p & 0x00FF00) >> 8;
+                sir[2] = (p & 0x0000FF);
 
-                sir[0] = (p & 0xAA0000) >> 16;
-                sir[1] = (p & 0x00AA00) >> 8;
-                sir[2] = (p & 0x0000AA);
+//                sir[0] = (p & 0xAA0000) >> 16;
+//                sir[1] = (p & 0x00AA00) >> 8;
+//                sir[2] = (p & 0x0000AA);
 
                 rinsum += sir[0];
                 ginsum += sir[1];

@@ -13,12 +13,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ted.mymusic.com.ted.mymusic.adapter.MusicListViewAdapter;
 import com.ted.mymusic.com.ted.mymusic.bean.Music;
+import com.ted.mymusic.com.ted.mymusic.service.MusicService;
 import com.ted.mymusic.com.ted.mymusic.utils.Constants;
 import com.ted.mymusic.com.ted.mymusic.utils.L;
 import com.ted.mymusic.com.ted.mymusic.utils.MediaUtils;
@@ -28,8 +30,7 @@ import java.lang.reflect.Method;
 /**
  * HOME TEST (GIT)
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
     private ListView mListView;
     private Toolbar toolbar;
     private TextView center;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private View mInclude;
     private TextView mBtmTitle;
     private TextView mBtmArtist;
+    private ImageButton mBtmPlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +97,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtmArt = (ImageView) findViewById(R.id.bottom_art);
         mBtmTitle = (TextView) findViewById(R.id.bottom_title);
         mBtmArtist = (TextView) findViewById(R.id.bottom_artist);
+        mBtmPlay = (ImageButton) findViewById(R.id.bottom_play);
 
+        if (MediaUtils.CUR_Music !=-1){
+            Music music = MediaUtils.songList.get(MediaUtils.CUR_Music);
+            mInclude.setVisibility(View.VISIBLE);
+            mBtmArt.setImageBitmap(music.albumArt);
+            mBtmTitle.setText(music.title);
+            mBtmArtist.setText(music.artist);
+            if (MediaUtils.CUR_STATUS == Constants.Music.MUSIC_PLAY){
+                mBtmPlay.setImageResource(R.mipmap.minibar_btn_pause_normal);
+            }else if (MediaUtils.CUR_STATUS == Constants.Music.MUSIC_PAUSE){
+                mBtmPlay.setImageResource(R.drawable.bottom_play_layer);
+            }
+        }
     }
 
     private void initData() {
@@ -112,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toolbar.setOnMenuItemClickListener(new MyMenuClickListener());
         mBtmArt.setOnClickListener(this);
         mListView.setOnItemClickListener(this);
+        mBtmPlay.setOnClickListener(this);
     }
 
     @Override
@@ -140,29 +156,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        Intent intent;
+        switch (v.getId()) {
             case R.id.bottom_art:
-                Intent intent = new Intent(this, SecondActivity.class);
-                intent.putExtra("current_music",MediaUtils.CUR_MUsic);
+                intent = new Intent(this, SecondActivity.class);
+                intent.putExtra("current_music", MediaUtils.CUR_Music);
                 startActivity(intent);
+                break;
+
+            case R.id.bottom_play:
+                intent = new Intent(MainActivity.this, MusicService.class);
+                if (MediaUtils.CUR_STATUS == Constants.Music.MUSIC_PLAY){
+                    intent.putExtra("option", "暂停");
+                    MediaUtils.CUR_STATUS = Constants.Music.MUSIC_PAUSE;
+                    mBtmPlay.setImageResource(R.drawable.bottom_play_layer);
+                }else if (MediaUtils.CUR_STATUS == Constants.Music.MUSIC_PAUSE){
+                    intent.putExtra("option", "继续");
+                    MediaUtils.CUR_STATUS = Constants.Music.MUSIC_PLAY;
+                    mBtmPlay.setImageResource(R.mipmap.minibar_btn_pause_normal);
+                }
+                startService(intent);
                 break;
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        View viewWithTag = mListView.findViewWithTag(MediaUtils.CUR_MUsic);
-        viewWithTag.setVisibility(View.GONE);
+        View viewWithTag;
+        if (MediaUtils.CUR_Music != -1) {
+            viewWithTag = mListView.findViewWithTag(MediaUtils.CUR_Music);
+            if (viewWithTag != null) {
+                viewWithTag.setVisibility(View.GONE);
+            }
+        }
 
-        MediaUtils.CUR_MUsic = position;
+
+        MediaUtils.CUR_Music = position;
         Music music = MediaUtils.songList.get(position);
         mInclude.setVisibility(View.VISIBLE);
         mBtmArt.setImageBitmap(music.albumArt);
         mBtmTitle.setText(music.title);
         mBtmArtist.setText(music.artist);
 
-        viewWithTag = mListView.findViewWithTag(MediaUtils.CUR_MUsic);
+        viewWithTag = mListView.findViewWithTag(MediaUtils.CUR_Music);
         viewWithTag.setVisibility(View.VISIBLE);
+
+        mBtmPlay.setImageResource(R.mipmap.minibar_btn_pause_normal);
+        MediaUtils.CUR_STATUS = Constants.Music.MUSIC_PLAY;
+
+        Intent intent = new Intent(MainActivity.this, MusicService.class);
+        intent.putExtra("option", "播放");
+        intent.putExtra("path", music.path);
+        startService(intent);
     }
 
     class MyMenuClickListener implements Toolbar.OnMenuItemClickListener {
