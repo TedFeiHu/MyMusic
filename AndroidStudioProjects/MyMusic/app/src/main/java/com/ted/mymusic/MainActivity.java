@@ -5,15 +5,13 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,17 +25,19 @@ import java.lang.reflect.Method;
 /**
  * HOME TEST (GIT)
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private ListView listView;
+    private ListView mListView;
     private Toolbar toolbar;
     private TextView center;
+    private ImageView mBtmArt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        // 权限判断---
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -48,9 +48,16 @@ public class MainActivity extends AppCompatActivity {
                 initData();
             }
         }
+        //----
         initListener();
+
+
+        /*测试代码，测试是否拿到专辑图 测试结果，成功，图片为原图，待压缩
+        ImageView atrHead = (ImageView) findViewById(R.id.bottom_art);
+        atrHead.setImageBitmap(MediaUtils.songList.get(0).albumArt);*/
     }
 
+    //点击权限窗口调用
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -75,29 +82,58 @@ public class MainActivity extends AppCompatActivity {
         //   toolbar.inflateMenu(R.menu.toolbar_base);
         setSupportActionBar(toolbar);
 
-        listView = (ListView) findViewById(R.id.music_list_view);
+        mListView = (ListView) findViewById(R.id.music_list_view);
         center = (TextView) findViewById(R.id.music_content_id);
+
+        mBtmArt = (ImageView) findViewById(R.id.bottom_art);
     }
 
     private void initData() {
 
         MediaUtils.initSongList(this);
-        listView.setAdapter(new MusicListViewAdapter(this));
+        mListView.setAdapter(new MusicListViewAdapter(this));
 
-        if (MediaUtils.songList.size() == 0){
+        if (MediaUtils.songList.size() == 0) {
             center.setVisibility(View.VISIBLE);
         }
     }
 
     private void initListener() {
         toolbar.setOnMenuItemClickListener(new MyMenuClickListener());
+        mBtmArt.setOnClickListener(this);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_base, menu);
         return true;
+    }
+
+    // 溢出menu显示图标
+    @Override
+    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+        if (menu != null) {
+            if (menu.getClass() == MenuBuilder.class) {
+                try {
+                    Method m = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
+                    m.setAccessible(true);
+                    m.invoke(menu, true);
+                } catch (Exception e) {
+                    L.e(getClass().getSimpleName() + "onMenuOpened...unable to set icons for overflow menu" + e);
+                    //   Out.print(getClass().getSimpleName() + "onMenuOpened...unable to set icons for overflow menu" + e);
+                }
+            }
+        }
+        return super.onPrepareOptionsPanel(view, menu);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.bottom_art:
+
+                break;
+        }
     }
 
     class MyMenuClickListener implements Toolbar.OnMenuItemClickListener {
@@ -123,23 +159,5 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         }
-    }
-
-    // 溢出menu显示图标
-    @Override
-    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
-        if (menu != null) {
-            if (menu.getClass() == MenuBuilder.class) {
-                try {
-                    Method m = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
-                    m.setAccessible(true);
-                    m.invoke(menu, true);
-                } catch (Exception e) {
-                    L.e(getClass().getSimpleName() + "onMenuOpened...unable to set icons for overflow menu" + e);
-                    //   Out.print(getClass().getSimpleName() + "onMenuOpened...unable to set icons for overflow menu" + e);
-                }
-            }
-        }
-        return super.onPrepareOptionsPanel(view, menu);
     }
 }

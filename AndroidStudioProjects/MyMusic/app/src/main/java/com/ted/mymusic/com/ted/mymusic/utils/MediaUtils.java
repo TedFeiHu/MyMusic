@@ -22,11 +22,11 @@ public class MediaUtils {
     public static void initSongList(Context context) {
         songList.clear();
         L.e("------------------------");
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI; // uri
-
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI; // uri 媒体音乐的uri
 
         String[] projection = {MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.ALBUM_ID};
+                MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.ALBUM_ID};
         Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
         assert cursor != null;
         while (cursor.moveToNext()) {
@@ -44,11 +44,13 @@ public class MediaUtils {
 
     private static Bitmap getAlbumArt(Context context, String albumID) {
         String mUriAlbums = "content://media/external/audio/albums";
-        Cursor cur = context.getContentResolver().query(Uri.parse(mUriAlbums + "/" + albumID),
+        Uri uri = Uri.parse(mUriAlbums + "/" + albumID);
+        Cursor cur = context.getContentResolver().query(uri,
                 new String[]{MediaStore.Audio.Albums.ALBUM_ART}, null, null, null);
         assert cur != null;
         if (cur.moveToNext()) {
             String art = cur.getString(0);
+            L.e(art);
             cur.close();
             return BitmapFactory.decodeFile(art);
         } else{
