@@ -1,6 +1,7 @@
 package com.ted.mymusic;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,12 +12,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ted.mymusic.com.ted.mymusic.adapter.MusicListViewAdapter;
-import com.ted.mymusic.com.ted.mymusic.utils.Contants;
+import com.ted.mymusic.com.ted.mymusic.bean.Music;
+import com.ted.mymusic.com.ted.mymusic.utils.Constants;
 import com.ted.mymusic.com.ted.mymusic.utils.L;
 import com.ted.mymusic.com.ted.mymusic.utils.MediaUtils;
 
@@ -25,12 +28,15 @@ import java.lang.reflect.Method;
 /**
  * HOME TEST (GIT)
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
 
     private ListView mListView;
     private Toolbar toolbar;
     private TextView center;
     private ImageView mBtmArt;
+    private View mInclude;
+    private TextView mBtmTitle;
+    private TextView mBtmAtrist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     != PackageManager.PERMISSION_GRANTED) {
                 //申请WRITE_EXTERNAL_STORAGE权限
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        Contants.Permission.WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                        Constants.Permission.WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
             } else {
                 initData();
             }
@@ -61,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == Contants.Permission.WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
+        if (requestCode == Constants.Permission.WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission Granted
                 L.e("--------11111-------------");
@@ -85,7 +91,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mListView = (ListView) findViewById(R.id.music_list_view);
         center = (TextView) findViewById(R.id.music_content_id);
 
+        mInclude = findViewById(R.id.include_layout);
         mBtmArt = (ImageView) findViewById(R.id.bottom_art);
+        mBtmTitle = (TextView) findViewById(R.id.bottom_title);
+        mBtmAtrist = (TextView) findViewById(R.id.bottom_artist);
+
     }
 
     private void initData() {
@@ -101,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initListener() {
         toolbar.setOnMenuItemClickListener(new MyMenuClickListener());
         mBtmArt.setOnClickListener(this);
+        mListView.setOnItemClickListener(this);
     }
 
     @Override
@@ -131,9 +142,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.bottom_art:
-
+                Intent intent = new Intent(this, SecondActivity.class);
+                intent.putExtra("current_music",MediaUtils.CUR_MUsic);
+                startActivity(intent);
                 break;
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        MediaUtils.CUR_MUsic = position;
+        Music music = MediaUtils.songList.get(position);
+        mInclude.setVisibility(View.VISIBLE);
+        mBtmArt.setImageBitmap(music.albumArt);
+        mBtmTitle.setText(music.title);
+        mBtmAtrist.setText(music.artist);
     }
 
     class MyMenuClickListener implements Toolbar.OnMenuItemClickListener {
