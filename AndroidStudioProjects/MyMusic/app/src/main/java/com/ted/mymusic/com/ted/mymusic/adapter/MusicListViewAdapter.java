@@ -64,7 +64,7 @@ public class MusicListViewAdapter extends BaseAdapter {
         holder.title.setText(music.title);
         holder.artist.setText(music.artist);
 
-        holder.duration.setText(music.duration + "");
+        holder.duration.setText(music.duration);
 
         holder.view.setTag(position);
 

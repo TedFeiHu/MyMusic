@@ -37,10 +37,11 @@ public class MediaUtils {
             String title = cursor.getString(cursor.getColumnIndex(projection[0]));
             String artist = cursor.getString(cursor.getColumnIndex(projection[1]));
             String path = cursor.getString(cursor.getColumnIndex(projection[2]));
-            int duration = cursor.getInt(cursor.getColumnIndex(projection[3]));
+            int durationInt = cursor.getInt(cursor.getColumnIndex(projection[3]));
+            String duration = (durationInt / 60000 < 10 ? 0 + "" + durationInt / 60000 : durationInt / 60000) + ":" + durationInt/1000%60;
             String albumID = cursor.getString(cursor.getColumnIndex(projection[4]));
             Bitmap albumArt = getAlbumArt(context, albumID);
-            Music music = new Music(title, artist, path, duration, albumArt);
+            Music music = new Music(title, artist, path, duration, durationInt, albumArt);
             songList.add(music);
         }
         cursor.close();
@@ -57,7 +58,7 @@ public class MediaUtils {
             L.e(art);
             cur.close();
             return BitmapFactory.decodeFile(art);
-        } else{
+        } else {
             cur.close();
             return null;
         }
@@ -66,8 +67,9 @@ public class MediaUtils {
     /**
      * 模糊处理专辑图片
      * 首先获取图片的Config，然后建立一个图片像素长宽乘积的数组，通过计算周边的平均rgb值来设置最终的像素
+     *
      * @param sentBitmap
-     * @param radius  值越大越模糊
+     * @param radius     值越大越模糊
      * @return
      */
     public static Bitmap fastblur(Bitmap sentBitmap, int radius) {
@@ -225,7 +227,7 @@ public class MediaUtils {
             yi = x;
             stackpointer = radius;
             for (y = 0; y < h; y++) {
-                pix[yi] = ( 0xff000000 & pix[yi] ) | ( dv[rsum] << 16 ) | ( dv[gsum] << 8 ) | dv[bsum];
+                pix[yi] = (0xff000000 & pix[yi]) | (dv[rsum] << 16) | (dv[gsum] << 8) | dv[bsum];
 
                 rsum -= routsum;
                 gsum -= goutsum;

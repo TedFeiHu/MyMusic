@@ -1,11 +1,17 @@
 package com.ted.mymusic;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Messenger;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.Toolbar;
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mBtmTitle;
     private TextView mBtmArtist;
     private ImageButton mBtmPlay;
+    private MusicListViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +66,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //----
         initListener();
 
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        BroadcastReceiver receiver = new BroadcastReceiver(){
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                L.e("接收到广播");
+                updateUI();
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.BroadCastAction.UPDATE_UI);
+        manager.registerReceiver(receiver, filter);
+    }
 
-        /*测试代码，测试是否拿到专辑图 测试结果，成功，图片为原图，待压缩
-        ImageView atrHead = (ImageView) findViewById(R.id.bottom_art);
-        atrHead.setImageBitmap(MediaUtils.songList.get(0).albumArt);*/
+    /**
+     * 更新ui
+     */
+    public void updateUI(){
+        adapter.notifyDataSetChanged();
+        Music music = MediaUtils.songList.get(MediaUtils.CUR_Music);
+        mBtmArt.setImageBitmap(music.albumArt);
+        mBtmTitle.setText(music.title);
+        mBtmArtist.setText(music.artist);
+        if (MediaUtils.CUR_STATUS == Constants.Music.MUSIC_PLAY){
+            mBtmPlay.setImageResource(R.mipmap.minibar_btn_pause_normal);
+        }
+        if (MediaUtils.CUR_STATUS == Constants.Music.MUSIC_PAUSE){
+            mBtmPlay.setImageResource(R.drawable.bottom_play_layer);
+        }
     }
 
     //点击权限窗口调用
@@ -116,7 +147,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initData() {
 
         MediaUtils.initSongList(this);
-        mListView.setAdapter(new MusicListViewAdapter(this));
+
+        adapter = new MusicListViewAdapter(this);
+        mListView.setAdapter(adapter);
 
         if (MediaUtils.songList.size() == 0) {
             center.setVisibility(View.VISIBLE);

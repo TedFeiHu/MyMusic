@@ -13,7 +13,13 @@ public class Constants {
         public static final int MUSIC_STOP = 1001;
         public static final int MUSIC_PLAY = 1002;
         public static final int MUSIC_PAUSE = 1003;
+    }
 
+    public static final class BroadCastAction{
+        public static final String UPDATE_UI = "com.wuxianedu.action.update";
+    }
 
+    public static final class HandleMsg{
+        public static final int SEEKBAR_WHAT = 0;
     }
 }

@@ -5,9 +5,18 @@ import android.content.Intent;
 import android.graphics.Path;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.ted.mymusic.com.ted.mymusic.utils.Constants;
+import com.ted.mymusic.com.ted.mymusic.utils.L;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Hu131 on 2016/10/6.
@@ -16,6 +25,9 @@ import java.io.IOException;
 public class MusicService extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     private MediaPlayer player;
+    private Messenger mMessenger;
+    private Timer mTimer;
+    private TimerTask mTask;
 
     @Nullable
     @Override
@@ -26,18 +38,28 @@ public class MusicService extends Service implements MediaPlayer.OnErrorListener
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String option = intent.getStringExtra("option");
-        if ("播放".equals(option)){
+
+        if ("播放".equals(option)) {
             String path = intent.getStringExtra("path");
             play(path);
-        }else if ("暂停".equals(option)){
+        } else if ("暂停".equals(option)) {
             pause();
-        }else if ("继续".equals(option)){
+        } else if ("继续".equals(option)) {
             continuePlay();
-        }else if ("停止".equals(option)){
+        } else if ("停止".equals(option)) {
             stopPlay();
+        }else if ("进度".equals(option)){
+            int progress = intent.getIntExtra("progress",-1);
+            seekPlayer(progress);
         }
 
-
+        if ("handler".equals(option)) {
+            L.e("进入option==handler");
+            if (mMessenger == null) {
+                mMessenger = (Messenger) intent.getExtras().get("messenger");
+            }
+            setProgress();
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -81,6 +103,35 @@ public class MusicService extends Service implements MediaPlayer.OnErrorListener
             player.stop();
         }
     }
+
+    public void setProgress() {
+
+        if (mTimer == null){
+            mTimer = new Timer();
+        }
+        mTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    int currentPosition = player.getCurrentPosition();
+                    Message msg = Message.obtain();
+                    msg.what = Constants.HandleMsg.SEEKBAR_WHAT;
+                    msg.arg1 = currentPosition;
+                    msg.arg2 = player.getDuration();
+                    mMessenger.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        mTimer.schedule(mTask,0,1000);
+    }
+
+    public void seekPlayer(int progress){
+        if (player!=null&&player.isPlaying()){
+            player.seekTo(progress);
+        }
+    }
     /*封装音乐播放器常用的方法----end*/
 
     //相关的回调方法
@@ -91,6 +142,10 @@ public class MusicService extends Service implements MediaPlayer.OnErrorListener
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        if (mMessenger != null) {
+            mTask.cancel();
+            setProgress();
+        }
 
     }
 
